@@ -3,14 +3,13 @@
 {
 	"name": "C# (.NET) / Python",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/dotnet:1-8.0-jammy",
+	//"image": "mcr.microsoft.com/devcontainers/dotnet:1-8.0-jammy",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": "."
+    },
 	"features": {
-		"ghcr.io/devcontainers/features/common-utils:2": {},
-		"ghcr.io/devcontainers/features/github-cli:1": {},
-		"ghcr.io/devcontainers/features/python:1": {},
-		"ghcr.io/devcontainers-contrib/features/ripgrep:1": {},
-		"ghcr.io/cirolosapio/devcontainers-features/alpine-nano:0": {},
-		"ghcr.io/audacioustux/devcontainers/common-utils-extras:1": {}
+		"ghcr.io/devcontainers/features/python:1": {}
 	},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
@@ -22,7 +21,7 @@
 	// }
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "dotnet restore",
+	"postCreateCommand": "sudo dotnet workload update && dotnet restore && cp /.bash_aliases ~/ && cp /.bash_aliases ~/.oh-my-zsh/custom/",
 
 	// Configure tool-specific properties.
 	"customizations": {
@@ -32,7 +31,6 @@
                 ,"vscode-icons-team.vscode-icons"
                 ,"visualstudioexptteam.vscodeintellicode"
 
-                ,"ms-dotnettools.csharp"
                 ,"ms-dotnettools.csdevkit"
                 ,"donjayamanne.python-extension-pack"
                 ,"donjayamanne.git-extension-pack"
