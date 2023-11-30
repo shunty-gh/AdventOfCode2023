@@ -3,12 +3,17 @@
 	"tasks": [
 		{
 			"label": "build-dotnet",
-			"type": "dotnet",
-			"task": "build",
+			"type": "process",
+			"command": "dotnet",
+			"args": [
+				"build",
+				"${workspaceFolder}/cs/aoc2023.csproj"
+			],
 			"problemMatcher": [
 				"$msCompile"
 			],
-			"group": "build",
+			"isBuildCommand": true,
+			"group": "build"
 		}
 	]
 }
