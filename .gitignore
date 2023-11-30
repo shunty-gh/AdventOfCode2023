@@ -1,0 +1,22 @@
+
+*.exe
+*.pdb
+*.ilk
+*.obj
+a.out
+
+.vs/
+.vscode/tags
+target/
+bin/
+**/[Dd]ebug
+**/[Rr]elease
+obj/
+*.nuget.*
+py/__pycache__/
+*.private.*
+.env
+
+# Allow 'fetch' tools
+!fetch-aoc-data
+!fetch-aoc-data.exe

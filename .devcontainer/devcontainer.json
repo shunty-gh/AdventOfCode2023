@@ -1,0 +1,48 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/dotnet
+{
+	"name": "C# (.NET) / Python",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/dotnet:1-8.0-jammy",
+	"features": {
+		"ghcr.io/devcontainers/features/common-utils:2": {},
+		"ghcr.io/devcontainers/features/github-cli:1": {},
+		"ghcr.io/devcontainers/features/python:1": {},
+		"ghcr.io/devcontainers-contrib/features/ripgrep:1": {},
+		"ghcr.io/cirolosapio/devcontainers-features/alpine-nano:0": {},
+		"ghcr.io/audacioustux/devcontainers/common-utils-extras:1": {}
+	},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [5000, 5001],
+	// "portsAttributes": {
+	//		"5001": {
+	//			"protocol": "https"
+	//		}
+	// }
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "dotnet restore",
+
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"mutantdino.resourcemonitor"
+                ,"vscode-icons-team.vscode-icons"
+                ,"visualstudioexptteam.vscodeintellicode"
+
+                ,"ms-dotnettools.csharp"
+                ,"ms-dotnettools.csdevkit"
+                ,"donjayamanne.python-extension-pack"
+                ,"donjayamanne.git-extension-pack"
+                ,"mhutchie.git-graph"
+
+                //,"coenraads.bracket-pair-colorizer-2"
+			]
+		}
+	}
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}
