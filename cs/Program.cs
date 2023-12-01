@@ -3,12 +3,16 @@ global using Shunty.AoC;
 using System.Diagnostics;
 using System.Reflection;
 
+
 /// An over engineered shell to run one or more solution classes
-/// for the [Advent Of Code](https://adventofcode.com/2023) puzzles
-/// for 2023.
+/// for the [Advent Of Code 2023](https://adventofcode.com/2023) puzzles.
+
 /// The solution classes just need to implement the `AocDaySolver` interface
 /// and for the purposes of this project are saved in the `./days`
 /// directory.
+/// The timing of each solution is a bit academic as the AnsiConsole stuff
+/// with spinners and colouring etc takes longer than normal simple stdout
+/// type writing. But who cares.
 
 // Still not quite sure if 'top-level statments' are all that great an
 // idea for most projects but we'll go with it for now.
@@ -96,10 +100,10 @@ static void PrintTitle(string title)
 /// <summary>
 /// Get all types in this assembly that support the `AoCDaySolver`
 /// interface (except for the interface itself).
-/// Use a list rather than a dictionary so we can add more than one way
+/// Return a list rather than a dictionary so we can add more than one way
 /// of solving a day should we really want to.
 /// </summay>
-static IList<(int day, Type daySolver)> LoadSolutionTypes()
+static IList<(int day, Type daySolver)> LoadSolutionTypes() 
 {
     var result = new List<(int, Type)>();
     var dstype = typeof(AocDaySolver);
@@ -113,14 +117,15 @@ static IList<(int day, Type daySolver)> LoadSolutionTypes()
     {
         // Run/Invoke the static method (of the AoCDaySolver interface) to get the day
         // number for which the type/class is made for
-		var dnmeth = type.GetMethod(nameof(AocDaySolver.DayNumber), BindingFlags.Public | BindingFlags.Static);
-		var dn = (int)(dnmeth?.Invoke(null, null) ?? 0);
+        var dnmeth = type.GetMethod(nameof(AocDaySolver.DayNumber), BindingFlags.Public | BindingFlags.Static);
+        var dn = (int)(dnmeth?.Invoke(null, null) ?? 0);
         // ...or...
-		// var dn = (int)(type.InvokeMember(
+        // var dn = (int)(type.InvokeMember(
         //     nameof(AocDaySolver.DayNumber),
         //     BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null) ?? 0);
 
-		result.Add((dn, type));
+        result.Add((dn, type));
     }
+
     return result;
 }
