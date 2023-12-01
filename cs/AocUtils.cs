@@ -1,3 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
+using Spectre.Console;
+
 namespace Shunty.AoC;
 
 public static class AocUtils
@@ -61,25 +64,31 @@ public static class AocUtils
 
 public interface AocDaySolver
 {
-    static abstract int DayNumber();
+    int DayNumber { get; }
     Task Solve();
 }
 
 public static class AocExtensions
 {
+    private const string AllowSpectreWarnings = "The Spectre.Console warnings apply to methods we do not use";
+
     /// <summary>
     /// These extensions require the `Spectre.Console` Nuget package
     /// </summary>
 
+    //[UnconditionalSuppressMessage("TrimAnalysis", "IL3002", Justification = AllowSpectreWarnings)]
+    //[UnconditionalSuppressMessage("TrimAnalysis", "IL2104", Justification = AllowSpectreWarnings)]
     public static void ShowDayResult<T>(this AocDaySolver _, int part, T solution)
     {
         AnsiConsole.MarkupLine($"  [bold]Part {part}:[/] {solution?.ToString() ?? "<Unknown>"}");
     }
+
     public static void ShowDayResults<T>(this AocDaySolver _, T solution1, T solution2)
     {
         AnsiConsole.MarkupLine($"  [bold]Part 1:[/] {solution1?.ToString() ?? "<Unknown>"}");
         AnsiConsole.MarkupLine($"  [bold]Part 2:[/] {solution2?.ToString() ?? "<Unknown>"}");
     }
+
     public static void ShowDayResults<T1, T2>(this AocDaySolver _, T1 solution1, T2 solution2)
     {
         AnsiConsole.MarkupLine($"  [bold]Part 1:[/] {solution1?.ToString() ?? "<Unknown>"}");

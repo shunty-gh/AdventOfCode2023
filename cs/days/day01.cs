@@ -4,11 +4,12 @@ namespace Shunty.AoC;
 
 public class Day01 : AocDaySolver
 {
-    public static int DayNumber() => 1;
+    public int DayNumber => 1;
+    public static AocDaySolver Instance => new Day01();
 
     public async Task Solve()
     {
-        var input = await AocUtils.GetDayLines(DayNumber());
+        var input = await AocUtils.GetDayLines(DayNumber);
 
         // Part 1
         var sum = 0;

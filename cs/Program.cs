@@ -1,8 +1,6 @@
-﻿global using Spectre.Console;
-global using Shunty.AoC;
+﻿global using Shunty.AoC;
 using System.Diagnostics;
-using System.Reflection;
-
+using Spectre.Console;
 
 /// An over engineered shell to run one or more solution classes
 /// for the [Advent Of Code 2023](https://adventofcode.com/2023) puzzles.
@@ -24,61 +22,83 @@ Console.WriteLine();
 var timer = Stopwatch.StartNew();
 try
 {
-    try
-    {
-        var today = DateTime.Today;
-        var curentDay = (today.Year == 2023 && today.Month == 12 && today.Day <= 25) ? today.Day : 0;
-        var daysToRun = args  // Get any day numbers off the command line
-            .Select(a => int.TryParse(a, out var ia) ? ia : 0)
-            .Where(i => i > 0 && i <= 25)
-            .OrderBy(x => x)
-            .Distinct()
-            .ToList();
-        if (daysToRun.Count == 0 && curentDay > 0)
-        {
-            daysToRun.Add(curentDay);
-        }
-        var runAll = daysToRun.Count == 0 || args.Any(a => a == "-a" || a == "--all");
-        var availableDays = LoadSolutionTypes()
-            .OrderBy(x => x.day)
-            .Where(x => runAll || daysToRun.Contains(x.day));
+    var daysRequested = GetDaysRequested(args);
+    var runAll = daysRequested.Count == 0;
+    var daysToRun = LoadSolutionTypes()
+        .OrderBy(x => x.DayNumber)
+        .Where(x => runAll || daysRequested.Contains(x.DayNumber));
 
-        await AnsiConsole.Status()
-            .StartAsync("Running...", async ctx =>
-            {
-                var flipflop = false;
-                ctx.Spinner(Spinner.Known.Christmas);
-
-                foreach (var (dayno,daytype) in availableDays)
-                {
-                    // A bit of unnecessary fluff
-                    ctx.Status($"Day {dayno}");
-                    ctx.Spinner(flipflop ? Spinner.Known.Star : Spinner.Known.Christmas);
-                    flipflop = !flipflop;
-                    //await Task.Delay(2000);  // Optional - So we get time to see the pretty spinners :-)
-
-                    // Create the class, run it and time it
-                    if (Activator.CreateInstance(daytype) is AocDaySolver soln)
-                    {
-                        AnsiConsole.MarkupLine($"[bold]Day {dayno}[/]");
-                        var start = timer.ElapsedMilliseconds;
-                        await soln.Solve();
-                        AnsiConsole.MarkupLine($"  [blue]Day {dayno} completed in [yellow]{timer.ElapsedMilliseconds - start}[/]ms[/]");
-                    }
-                }
-            });
-        Console.WriteLine();
-    }
-    catch (Exception ex)
-    {
-        AnsiConsole.WriteException(ex);
-    }
+    await RunSolutions(daysToRun, timer);
 }
 finally
 {
     timer.Stop();
-    AnsiConsole.MarkupLine($"[blue]All completed in [yellow]{timer.ElapsedMilliseconds}[/]ms[/]");
-    Console.WriteLine();
+    PrintFooter(timer.ElapsedMilliseconds);    
+}
+
+/// <summary>
+/// Register all classes that support the `AoCDaySolver`
+/// interface.
+/// </summay>
+static IReadOnlyCollection<AocDaySolver> LoadSolutionTypes()
+{
+    return new List<AocDaySolver>
+    {
+        new Day01(),
+    };
+}
+
+/// <summary>
+/// Parse the command line for any day numbers required
+/// </summary>
+static IReadOnlyCollection<int> GetDaysRequested(string[] args)
+{
+    var today = DateTime.Today;
+    var curentDay = (today.Year == 2023 && today.Month == 12 && today.Day <= 25) ? today.Day : 0;
+    var runAll = args.Any(a => a == "-a" || a == "--all");
+    if (runAll)
+        return [];
+
+    List<int> daysRequested = args  // Get any day numbers off the command line
+        .Select(a => int.TryParse(a, out var ia) ? ia : 0)
+        .Where(i => i > 0 && i <= 25)
+        .OrderBy(x => x)
+        .Distinct()
+        .ToList();
+    if (daysRequested.Count == 0 && curentDay > 0)
+    {
+        daysRequested.Add(curentDay);
+    }
+    return daysRequested;
+}
+
+/// <summary>
+/// Run each day solution and make it look good
+/// </summary>
+static async Task RunSolutions(IEnumerable<AocDaySolver> daysToRun, Stopwatch timer)
+{
+    await AnsiConsole.Status()
+        .StartAsync("Running...", async ctx =>
+        {
+
+            var flipflop = false;
+            ctx.Spinner(Spinner.Known.Christmas);
+
+            foreach (var daySolution in daysToRun)
+            {
+                // A bit of unnecessary fluff
+                ctx.Status($"Day {daySolution.DayNumber}");
+                ctx.Spinner(flipflop ? Spinner.Known.Star : Spinner.Known.Christmas);
+                flipflop = !flipflop;
+                //await Task.Delay(2000);  // Optional - So we get time to see the pretty spinners :-)
+
+                // Run it and time it
+                AnsiConsole.MarkupLine($"[bold]Day {daySolution.DayNumber}[/]");
+                var start = timer.ElapsedMilliseconds;
+                await daySolution.Solve();
+                AnsiConsole.MarkupLine($"  [blue]Day {daySolution.DayNumber} completed in [yellow]{timer.ElapsedMilliseconds - start}[/]ms[/]");
+            }
+        });
 }
 
 /// <summary>
@@ -97,35 +117,9 @@ static void PrintTitle(string title)
     AnsiConsole.WriteLine();
 }
 
-/// <summary>
-/// Get all types in this assembly that support the `AoCDaySolver`
-/// interface (except for the interface itself).
-/// Return a list rather than a dictionary so we can add more than one way
-/// of solving a day should we really want to.
-/// </summay>
-static IList<(int day, Type daySolver)> LoadSolutionTypes() 
+static void PrintFooter(long elapsedMilliseconds)
 {
-    var result = new List<(int, Type)>();
-    var dstype = typeof(AocDaySolver);
-    var solutiontypes = Assembly.GetExecutingAssembly()
-        .GetTypes()
-        .Where(type => dstype.IsAssignableFrom(type)
-            && type != dstype
-            && !type.IsAbstract);
-
-    foreach (Type type in solutiontypes)
-    {
-        // Run/Invoke the static method (of the AoCDaySolver interface) to get the day
-        // number for which the type/class is made for
-        var dnmeth = type.GetMethod(nameof(AocDaySolver.DayNumber), BindingFlags.Public | BindingFlags.Static);
-        var dn = (int)(dnmeth?.Invoke(null, null) ?? 0);
-        // ...or...
-        // var dn = (int)(type.InvokeMember(
-        //     nameof(AocDaySolver.DayNumber),
-        //     BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null) ?? 0);
-
-        result.Add((dn, type));
-    }
-
-    return result;
+    Console.WriteLine();
+    AnsiConsole.MarkupLine($"[blue]All completed in [yellow]{elapsedMilliseconds}[/]ms[/]");
+    Console.WriteLine();
 }

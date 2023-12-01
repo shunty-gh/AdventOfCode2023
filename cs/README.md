@@ -36,3 +36,13 @@ dotnet run --all
 ### Debugging
 
 To debug in Visual Studio Code set a breakpoint by clicking in the gutter on the source code line of your choice then press F5 (you might need to select the appropriate debug profile).
+
+### Misc
+
+To build a Release version using all the ahead of time, platform specific compilation and trimming goodness use the command:
+
+```
+dotnet publish -c Release
+```
+This should produce a much smaller and faster platform native executable. It will be output to the `<repo>/cs/bin/Release/net8.0/<platform>/publish/` directory. 
+eg `./bin/Release/net8.0/win-x64/publish/aoc2023.exe` on Windows and `./bin/Release/net8.0/linux-x64/publish/aoc2023` on Linux.

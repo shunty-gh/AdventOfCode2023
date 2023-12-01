@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>Shunty.AoC</RootNamespace>
     <Authors>Steven Hunt &lt;shunty-gh@github&gt;</Authors>
-    <PublishAot>false</PublishAot>
+    <PublishAot>true</PublishAot>
   </PropertyGroup>
 
   <ItemGroup>
