@@ -1,30 +1,6 @@
 import os
 
-# https://adventofcode.com/2023/day/1 - Day 1:
-
-def digitToNum(s) -> int:
-    match s:
-        case "one" | "1":
-            return 1
-        case "two" | "2":
-            return 2
-        case "three" | "3":
-            return 3
-        case "four" | "4":
-            return 4
-        case "five" | "5":
-            return 5
-        case "six" | "6":
-            return 6
-        case "seven" | "7":
-            return 7
-        case "eight" | "8":
-            return 8
-        case "nine" | "9":
-            return 9
-        case _:
-            return 0
-
+# https://adventofcode.com/2023/day/1
 
 with open(os.path.dirname(os.path.realpath(__file__)) + "/../input/day01-input", "r") as f:
     input = [line.strip() for line in f.readlines()]
@@ -46,9 +22,9 @@ for s in input:
     last = -1
     # Find first, scan forward
     while i < len(s):
-        for digit in digits:
+        for idx, digit in enumerate(digits):
             if s[i:].startswith(digit):
-                first = digitToNum(digit) * 10
+                first = 10 * (idx + 1 if len(digit) > 1 else int(digit))
                 break
         if first > 0:
             break
@@ -57,9 +33,9 @@ for s in input:
     # Find last, scan backward
     i = len(s) - 1
     while i >= 0:
-        for digit in digits:
+        for idx, digit in enumerate(digits):
             if s[i:].startswith(digit):
-                last = digitToNum(digit)
+                last = idx + 1 if len(digit) > 1 else int(digit)
                 break
         if last >= 0:
             break
