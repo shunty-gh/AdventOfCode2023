@@ -33,7 +33,7 @@ try
 finally
 {
     timer.Stop();
-    PrintFooter(timer.ElapsedMilliseconds);    
+    PrintFooter(timer.ElapsedMilliseconds);
 }
 
 /// <summary>
@@ -45,6 +45,7 @@ static IReadOnlyCollection<AocDaySolver> LoadSolutionTypes()
     return new List<AocDaySolver>
     {
         new Day01(),
+        new Day02(),
     };
 }
 
