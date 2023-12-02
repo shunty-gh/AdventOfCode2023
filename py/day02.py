@@ -17,7 +17,7 @@ def power(rounds):
 with open(os.path.dirname(os.path.realpath(__file__)) + "/../input/day02-input", "r") as f:
     input = [line.strip() for line in f.readlines()]
 
-games: list[int, ] = []
+games = []
 for line in input:
     (gid, game) = line.split(':')
     rounds = []
