@@ -1,6 +1,3 @@
-using System.Collections.ObjectModel;
-using Spectre.Console.Rendering;
-
 namespace Shunty.AoC;
 
 // https://adventofcode.com/2023/day/2 - Cube Conundrum
