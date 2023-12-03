@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Spectre.Console;
 
 namespace Shunty.AoC;
@@ -12,7 +11,7 @@ public static class AocUtils
             throw new FileNotFoundException($"Input file for day {day} not found");
 
         return (await File.ReadAllLinesAsync(fn))
-            .Select(s => s.Trim(new char[] { ' ', '\r', '\n', '\t' }))
+            .Select(s => s.Trim([' ', '\r', '\n', '\t']))
             .ToList();
     }
 
