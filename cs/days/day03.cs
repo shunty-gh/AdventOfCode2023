@@ -25,8 +25,9 @@ public class Day03 : AocDaySolver
                     var n = "" + cell;
                     // get number
                     var x2 = x;
-                    while (x2++ < www-1)
+                    while (x2 < www-1)
                     {
+                        x2++;
                         if (!Char.IsDigit(row[x2]))
                             break;
                         n += row[x2];
