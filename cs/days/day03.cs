@@ -54,16 +54,12 @@ public class Day03 : AocDaySolver
             }
 
             // See if the surrounding points contain a symbol
-            var p1_added = false;
+            var p1_add = false;
             foreach (var pp in nearby)
             {
                 if (symbols.ContainsKey(pp))
                 {
-                    if (!p1_added)
-                    {
-                        p1 += num;
-                        p1_added = true;
-                    }
+                    p1_add = true;
 
                     // Is it next to a star? If so, add to the list of values next to that star
                     if (symbols[pp].Symbol == '*')
@@ -72,6 +68,8 @@ public class Day03 : AocDaySolver
                     }
                 }
             }
+            if (p1_add)
+                p1 += num;
         }
         this.ShowDayResult(1, p1);
 
