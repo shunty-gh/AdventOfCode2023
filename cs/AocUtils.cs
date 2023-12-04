@@ -94,3 +94,18 @@ public static class AocExtensions
         AnsiConsole.MarkupLine($"  [bold]Part 2:[/] {solution2?.ToString() ?? "<Unknown>"}");
     }
 }
+
+public static class DictionaryExtensions
+{
+    /// <summary>
+    /// A little IDictionary helper that checks if the key exists. If so it adds the value
+    /// otherwise it sets the value. A bit like a Python defaultdict.
+    /// </summary>
+    public static void SetOrIncrement<T>(this IDictionary<T, int> dict, T key, int value)
+    {
+        if (dict.ContainsKey(key))
+            dict[key] += value;
+        else
+            dict[key] = value;
+    }
+}
