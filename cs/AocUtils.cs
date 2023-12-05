@@ -4,9 +4,9 @@ namespace Shunty.AoC;
 
 public static class AocUtils
 {
-    public static async Task<IList<string>> GetDayLines(int day)
+    public static async Task<IList<string>> GetDayLines(int day, string suffix = "")
     {
-        var fn = FindInputFile(day);
+        var fn = FindInputFile(day, suffix);
         if (string.IsNullOrEmpty(fn))
             throw new FileNotFoundException($"Input file for day {day} not found");
 
@@ -24,11 +24,13 @@ public static class AocUtils
         return await File.ReadAllTextAsync(fn);
     }
 
-    public static string FindInputFile(int day)
+    public static string FindInputFile(int day, string suffix = "")
     {
         var dstart = Directory.GetCurrentDirectory();
         var dir = dstart;
-        var dayfile = $"day{day:D2}-input";
+        var dayfile = string.IsNullOrWhiteSpace(suffix)
+            ? $"day{day:D2}-input"
+            : $"day{day:D2}-input-{suffix}";
         int maxParentLevels = 6;
         int parentLevel = 0;
         while (parentLevel <= maxParentLevels)
