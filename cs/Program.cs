@@ -48,6 +48,7 @@ static IReadOnlyCollection<AocDaySolver> LoadSolutionTypes()
         new Day02(),
         new Day03(),
         new Day04(),
+        new Day05(),
     };
 }
 
