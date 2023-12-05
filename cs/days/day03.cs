@@ -8,7 +8,7 @@ public class Day03 : AocDaySolver
 
     public async Task Solve()
     {
-        var input = (await AocUtils.GetDayLines(DayNumber)).ToList();
+        var input = await AocUtils.GetDayLines(DayNumber);
 
         var hhh = input.Count;
         var www = input[0].Length;
