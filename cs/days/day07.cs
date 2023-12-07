@@ -17,7 +17,7 @@ public class Day07 : AocDaySolver
 
         // P2
         SortHands(hands, true);
-        this.ShowDayResult(1, GetWinnings(hands));
+        this.ShowDayResult(2, GetWinnings(hands));
     }
 
     private int GetWinnings(IList<Hand> hands)
@@ -32,34 +32,24 @@ public class Day07 : AocDaySolver
         hands.Sort((a,b) =>
         {
             // We want a descending sort order, so a < b => +1
-            if (a.HType(withJoker) < b.HType(withJoker))
-                return 1;
-            else if (a.HType(withJoker) > b.HType(withJoker))
-                return -1;
-            else
+            HandType at = a.HType(withJoker), bt = b.HType(withJoker);
+            if (at == bt)
             {
                 var ranking = withJoker ? CardRankJoker : CardRank;
                 for (var i = 0; i < 5; i++)
                 {
-                    if (ranking[a.Cards[i]] < ranking[b.Cards[i]])
-                        return 1;
-                    else if (ranking[a.Cards[i]] > ranking[b.Cards[i]])
-                        return -1;
+                    if (a.Cards[i] != b.Cards[i])
+                        return ranking.IndexOf(a.Cards[i]) < ranking.IndexOf(b.Cards[i]) ? 1 : -1;
                 }
                 return 0;
             }
+            return at < bt ? 1 : -1;
         });
         return hands;
     }
 
-    private readonly Dictionary<char,int> CardRank = new() {
-        { 'A', 12 }, { 'K', 11 }, { 'Q', 10 }, { 'J', 9  }, { 'T', 8  }, { '9', 7  },
-        { '8', 6  }, { '7', 5  }, { '6', 4  }, { '5', 3  }, { '4', 2  }, { '3', 1  }, { '2', 0  },
-    };
-    private readonly Dictionary<char,int> CardRankJoker = new() {
-        { 'A', 12 }, { 'K', 11 }, { 'Q', 10 }, { 'T', 9  }, { '9', 8  }, { '8', 7  },
-        { '7', 6  }, { '6', 5  }, { '5', 4  }, { '4', 3  }, { '3', 2  }, { '2', 1  }, { 'J', 0  },
-    };
+    private const string CardRank = "23456789TJQKA";
+    private const string CardRankJoker = "J23456789TQKA";
 }
 
 public enum HandType
