@@ -32,9 +32,9 @@ public class Day07 : AocDaySolver
         hands.Sort((a,b) =>
         {
             // We want a descending sort order, so a < b => +1
-            if (a.HandType(withJoker) < b.HandType(withJoker))
+            if (a.HType(withJoker) < b.HType(withJoker))
                 return 1;
-            else if (a.HandType(withJoker) > b.HandType(withJoker))
+            else if (a.HType(withJoker) > b.HType(withJoker))
                 return -1;
             else
             {
@@ -67,81 +67,54 @@ public enum HandType
     None, HighCard, OnePair, TwoPair, ThreeOfAKind, FullHouse, FourOfAKind, FiveOfAKind,
 }
 
-public static class HandTypeExtensions
+public record Hand
 {
-    public static HandType ToHandType(this string cards, bool withJoker = false)
+    private HandType _handTypeWithoutJoker;
+    private HandType _handTypeWithJoker;
+    public string Cards { get; init; }
+    public int Bid { get; init; }
+    public HandType HType(bool withJoker = false) => withJoker ? _handTypeWithJoker : _handTypeWithoutJoker;
+
+    public Hand(string cards, int bid)
+    {
+        Cards = cards;
+        Bid = bid;
+        (_handTypeWithoutJoker, _handTypeWithJoker) = GetHandTypes(cards);
+    }
+
+    private (HandType withoutJoker, HandType withJoker) GetHandTypes(string cards)
     {
         var cardGroups = cards.ToCharArray()
             .GroupBy(c => c)
             .ToDictionary(kvp => kvp.Key, kvp => kvp.Count());
 
         var gc = cardGroups.Count();
-        var result = HandType.None;
-        if (gc == 1)
-            result = HandType.FiveOfAKind;
-        else if (gc == 2)
+        HandType resultWithout = gc switch
         {
-            if (cardGroups.Any(g => g.Value == 4))
-                result = HandType.FourOfAKind;
-            else
-                result = HandType.FullHouse;
-        }
-        else if (gc == 4)
-            result = HandType.OnePair;
-        else if (gc == 5)
-        {
-            result = HandType.HighCard;
-        }
-        else // 3 groups
-        {
-            if (cardGroups.Any(g => g.Value == 3))
-                result = HandType.ThreeOfAKind;
-            else
-                result = HandType.TwoPair;
-        }
+            1 => HandType.FiveOfAKind,
+            2 => cardGroups.Any(g => g.Value == 4 ) ? HandType.FourOfAKind : HandType.FullHouse,
+            3 => cardGroups.Any(g => g.Value == 3) ? HandType.ThreeOfAKind : HandType.TwoPair,
+            4 => HandType.OnePair,
+            5 => HandType.HighCard,
+            _ => throw new Exception($"Invalid hand type [{cards}]"),
+        };
 
-        // See if we can 'upgrade' the hand
-        if (withJoker && cardGroups.ContainsKey('J') && result != HandType.FiveOfAKind)
+        // See if we can upgrade the hand if there any 'joker's in the hand
+        var resultWith = resultWithout;
+        if (cardGroups.ContainsKey('J') && resultWith != HandType.FiveOfAKind)
         {
             var jcount = cardGroups['J'];
-            if (result == HandType.FourOfAKind) // jcount could be 1 OR 4. Either way we can convert to 5 of a kind
-                result = HandType.FiveOfAKind;
-            else if (result == HandType.FullHouse) // jcount could be 2 or 3. Both can convert to 5 of a kind
-                result = HandType.FiveOfAKind;
-            else if (result == HandType.ThreeOfAKind) // jcount could be 1 or 3 => both yield 4 of a kind (better than full house)
-                result = HandType.FourOfAKind;
-            else if (result == HandType.TwoPair)
+            resultWith = resultWith switch
             {
-                if (jcount == 1)
-                    result = HandType.FullHouse;
-                else if (jcount == 2)
-                    result = HandType.FourOfAKind;
-            }
-            else if (result == HandType.OnePair) // jcount can be 1 or 2 = > either way the best we can get is 3 of a kind
-                result = HandType.ThreeOfAKind;
-            else if (result == HandType.HighCard) // jcount can only be 1
-                result = HandType.OnePair;
+                HandType.FourOfAKind => HandType.FiveOfAKind,  // jcount could be 1 OR 4. Both can convert to 5 of a kind
+                HandType.FullHouse => HandType.FiveOfAKind,    // jcount could be 2 or 3. Both can convert to 5 of a kind
+                HandType.ThreeOfAKind => HandType.FourOfAKind, // jcount could be 1 or 3. Both yield 4 of a kind (better than full house)
+                HandType.TwoPair => jcount == 2 ? HandType.FourOfAKind : HandType.FullHouse,
+                HandType.OnePair => HandType.ThreeOfAKind,     // jcount could be 1 or 2. Either way, the best we can get is 3 of a kind
+                HandType.HighCard => HandType.OnePair,         // jcount can only be 1
+                _ => resultWith,
+            };
         }
-
-        if (result == HandType.None)
-            throw new Exception($"Invalid hand type [{cards}]");
-        return result;
-    }
-}
-
-public record Hand
-{
-    private HandType _handType;
-    private HandType _handTypeJoker;
-    public string Cards { get; init; }
-    public int Bid { get; init; }
-    public HandType HandType(bool withJoker = false) => withJoker ? _handTypeJoker : _handType;
-
-    public Hand(string cards, int bid)
-    {
-        Cards = cards;
-        Bid = bid;
-        _handType = cards.ToHandType();
-        _handTypeJoker = cards.ToHandType(true);
+        return (resultWithout, resultWith);
     }
 }
