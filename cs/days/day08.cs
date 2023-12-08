@@ -1,6 +1,6 @@
 namespace Shunty.AoC;
 
-// https://adventofcode.com/2023/day/8
+// https://adventofcode.com/2023/day/8 - Haunted Wasteland
 
 public class Day08 : AocDaySolver
 {
@@ -30,7 +30,7 @@ public class Day08 : AocDaySolver
         this.ShowDayResult(1, steps);
 
         // P2
-        // Brief analysis of the input shows that there are only 5 elements that end in 'A' (in this particular case).
+        // Brief analysis of the input shows that there are only 6 elements that end in 'A' (in this particular case).
         // If we run the process for each one we find that they all 'terminate' at different
         // points but that each 'process' repeats over a constant number of steps/cycles.
         // So all we need to do is to find the loop period for each start element and then find
