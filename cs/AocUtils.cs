@@ -111,3 +111,94 @@ public static class DictionaryExtensions
             dict[key] = value;
     }
 }
+
+public static class IntExtensions
+{
+    public record Factor(Int64 Value, Int64 Power);
+
+    public static IReadOnlyCollection<Factor> Factors(this Int64 value)
+    {
+        var factors = new Dictionary<Int64, Int64>();
+        Int64 current = value;
+        Int64 factor = 2;
+        while (current > 1 && factor <= value / 2)
+        {
+            if (current % factor == 0)
+            {
+                if (factors.ContainsKey(factor))
+                {
+                    factors[factor] += 1;
+                }
+                else
+                {
+                    factors[factor] = 1;
+                }
+                current /= factor;
+            }
+            else
+            {
+                factor++;
+            }
+        }
+        return factors.Select(kvp => new Factor(kvp.Key, kvp.Value)).OrderBy(x => x.Value).ToList();
+    }
+
+    /// <summary>
+    /// Compute the least/lowest common multiple of two numbers.
+    /// WARNING: This isn't actually tested. Use at someone else's risk.
+    /// </summary>
+    public static Int64 LCM(Int64 a, Int64 b)
+    {
+        var afacs = a.Factors();
+        var bfacs = b.Factors();
+        var allfacs = afacs.ToDictionary(a => a.Value, a => a.Power);
+        foreach (var fac in bfacs)
+        {
+            if (allfacs.ContainsKey(fac.Value))
+                allfacs[fac.Value] = Math.Max(allfacs[fac.Value], fac.Power);
+            else
+                allfacs[fac.Value] = fac.Power;
+        }
+
+        Int64 result = 1;
+        foreach (var kvp in allfacs)
+        {
+            result *= (Int64)Math.Pow(kvp.Key, kvp.Value);
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Compute the least/lowest common multiple of a list of numbers.
+    /// WARNING: This has *never* been tested. Use at someone else's risk!
+    /// It works for the uses I have put it to but there are no guarantees
+    /// it will work in any other situation. Whatsoever.
+    /// </summary>
+    public static Int64 LCM(IEnumerable<Int64> nums)
+    {
+        if (nums.Count() == 0)
+            return 0;
+        if (nums.Count() == 1)
+            return nums.First();
+
+        var allfactors = nums.First().Factors().ToDictionary(a => a.Value, a => a.Power);
+        foreach (var num in nums)
+        {
+            var nfacs = num.Factors();
+            foreach (var fac in nfacs)
+            {
+                if (allfactors.ContainsKey(fac.Value))
+                    allfactors[fac.Value] = Math.Max(allfactors[fac.Value], fac.Power);
+                else
+                    allfactors[fac.Value] = fac.Power;
+            }
+        }
+
+        Int64 result = 1;
+        foreach (var kvp in allfactors)
+        {
+            result *= (Int64)Math.Pow(kvp.Key, kvp.Value);
+        }
+        return result;
+    }
+}
