@@ -1,5 +1,3 @@
-using static Shunty.AoC.IntExtensions;
-
 namespace Shunty.AoC;
 
 // https://adventofcode.com/2023/day/8
@@ -33,7 +31,7 @@ public class Day08 : AocDaySolver
 
         // P2
         // Brief analysis of the input shows that there are only 5 elements that end in 'A' (in this particular case).
-        // If we run the process for each one we will find that they all 'terminate' at different
+        // If we run the process for each one we find that they all 'terminate' at different
         // points but that each 'process' repeats over a constant number of steps/cycles.
         // So all we need to do is to find the loop period for each start element and then find
         // the lowest common multiple of all of the periods.
@@ -68,8 +66,7 @@ public class Day08 : AocDaySolver
             index = (index+1) % ilen;
         }
 
-        // Find the LCM
-        var p2 = LCM(loopPeriod.Select(n => (Int64)n));
+        var p2 = loopPeriod.Select(Convert.ToInt64).LeastCommonMultiple();
         this.ShowDayResult(2, p2);
     }
 }

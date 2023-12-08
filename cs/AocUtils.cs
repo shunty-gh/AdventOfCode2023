@@ -1,3 +1,4 @@
+using System.Numerics;
 using Spectre.Console;
 
 namespace Shunty.AoC;
@@ -112,7 +113,7 @@ public static class DictionaryExtensions
     }
 }
 
-public static class IntExtensions
+public static class NumericExtensions
 {
     public record Factor(Int64 Value, Int64 Power);
 
@@ -147,7 +148,8 @@ public static class IntExtensions
     /// Compute the least/lowest common multiple of two numbers.
     /// WARNING: This isn't actually tested. Use at someone else's risk.
     /// </summary>
-    public static Int64 LCM(Int64 a, Int64 b)
+    [Obsolete("Rewritten as LeastCommonMultiple")]
+    public static Int64 LCMObsolete(Int64 a, Int64 b)
     {
         var afacs = a.Factors();
         var bfacs = b.Factors();
@@ -174,7 +176,8 @@ public static class IntExtensions
     /// It works for the uses I have put it to but there are no guarantees
     /// it will work in any other situation. Whatsoever.
     /// </summary>
-    public static Int64 LCM(IEnumerable<Int64> nums)
+    [Obsolete("Rewritten as LeastCommonMultiple")]
+    public static Int64 LCMObsolete(IEnumerable<Int64> nums)
     {
         if (nums.Count() == 0)
             return 0;
@@ -200,5 +203,36 @@ public static class IntExtensions
             result *= (Int64)Math.Pow(kvp.Key, kvp.Value);
         }
         return result;
+    }
+
+    public static T GCD<T>(T a, T b) where T : INumber<T> => GreatestCommonFactor(a, b);
+    public static T GCF<T>(T a, T b) where T : INumber<T> => GreatestCommonFactor(a, b);
+    public static T GreatestCommonFactor<T>(T a, T b) where T : INumber<T>
+    {
+        while (b != T.Zero)
+        {
+            var temp = b;
+            b = a % b;
+            a = temp;
+        }
+
+        return a;
+    }
+
+    public static T LeastCommonMultiple<T>(T a, T b) where T : INumber<T>
+    {
+        checked
+        {
+            return a  / GreatestCommonFactor(a, b) * b;
+        }
+    }
+
+    public static T LCM<T>(this IEnumerable<T> values) where T : INumber<T> => LeastCommonMultiple(values);
+    public static T LeastCommonMultiple<T>(this IEnumerable<T> values) where T : INumber<T>
+    {
+        checked
+        {
+            return values.Aggregate(LeastCommonMultiple);
+        }
     }
 }
