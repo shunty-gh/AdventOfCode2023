@@ -117,6 +117,26 @@ public static class NumericExtensions
 {
     public record Factor(Int64 Value, Int64 Power);
 
+    public static Int64 Sum64(this IEnumerable<int> source)
+    {
+        Int64 result = 0;
+        foreach (int n in source)
+        {
+            result += n;
+        }
+        return result;
+    }
+
+    public static Int64 Sum64(this IEnumerable<Int64> source)
+    {
+        Int64 result = 0;
+        foreach (int n in source)
+        {
+            result += n;
+        }
+        return result;
+    }
+
     public static IReadOnlyCollection<Factor> Factors(this Int64 value)
     {
         var factors = new Dictionary<Int64, Int64>();
