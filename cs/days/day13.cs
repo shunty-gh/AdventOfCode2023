@@ -27,7 +27,7 @@ public class Day13 : AocDaySolver
         var bi = 0;
         foreach (var block in blocks)
         {
-            var score = GetScore(block);
+            var score = GetBlockScore(block);
             // Save scores for part 2
             mirrorScores[bi] = score;
             p1 += score;
@@ -51,7 +51,7 @@ public class Day13 : AocDaySolver
                 {
                     curr = new(x,y);
                     ChangeBlockElement(block, curr, prev);
-                    var score = GetScore(block, orgMI);
+                    var score = GetBlockScore(block, orgMI);
                     if (score > 0)
                     {
                         found = true;
@@ -68,20 +68,20 @@ public class Day13 : AocDaySolver
         this.ShowDayResult(2, p2);
     }
 
-    private int GetScore(List<char[]> block, int skipScore = -1)
+    private int GetBlockScore(List<char[]> block, int skipScore = -1)
     {
-        Func<int, IEnumerable<char>> rfunc = (i) => block[i];
-        Func<int, IEnumerable<char>> cfunc = (i) => block.Select(c => c[i]);
+        Func<int, IEnumerable<char>> rowFunc = (i) => block[i];
+        Func<int, IEnumerable<char>> colFunc = (i) => block.Select(c => c[i]);
 
-        var result = GetScore(block.Count - 1, rfunc, 100, skipScore);
+        var result = GetRCScore(block.Count - 1, rowFunc, 100, skipScore);
         if (result <= 0)
         {
-            result = GetScore(block[0].Length - 1, cfunc, 1, skipScore);
+            result = GetRCScore(block[0].Length - 1, colFunc, 1, skipScore);
         }
         return result;
     }
 
-    private int GetScore(int max, Func<int, IEnumerable<char>> fn, int mult, int skipScore = -1)
+    private int GetRCScore(int max, Func<int, IEnumerable<char>> fn, int mult, int skipScore = -1)
     {
         for (var i = 1; i <= max; i++)
         {
