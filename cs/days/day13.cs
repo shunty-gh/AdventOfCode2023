@@ -1,5 +1,3 @@
-using System.Collections.ObjectModel;
-
 namespace Shunty.AoC;
 
 // https://adventofcode.com/2023/day/13 - Point of Incidence
@@ -12,19 +10,27 @@ public class Day13 : AocDaySolver
     {
         //var input = await AocUtils.GetDayLines(DayNumber, "test");
         var input = await AocUtils.GetDayLines(DayNumber);
-        var blocks = ProcessInput(input.AsReadOnly());
+        var blocks = new List<List<char[]>> { new() };
+        foreach (var line in input)
+        {
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                blocks.Add([]);
+                continue;
+            }
+            blocks[^1].Add(line.ToCharArray());
+        }
 
         // Part 1
-        var mirrorInfo = new Dictionary<int, MirrorInfo>();
+        var mirrorScores = new Dictionary<int, int>();
         var p1 = 0;
         var bi = 0;
         foreach (var block in blocks)
         {
-            var (rowscores, colscores) = GetBlockScores(block);
-            var mi = GetMirrorInfo(rowscores.AsReadOnly(), colscores.AsReadOnly());
-            p1 += mi.Score;
-            // Save it for part 2
-            mirrorInfo.Add(bi, mi);
+            var score = GetScore(block);
+            // Save scores for part 2
+            mirrorScores[bi] = score;
+            p1 += score;
             bi++;
         }
         this.ShowDayResult(1, p1);
@@ -34,10 +40,9 @@ public class Day13 : AocDaySolver
         bi = 0;
         foreach (var block in blocks)
         {
-            // Get the original mirror info so we can skip it when searching
-            var orgMI = mirrorInfo[bi];
+            // Get the original score so we can skip it when searching
+            var orgMI = mirrorScores[bi];
 
-            var blockscore = 0;
             var found = false;
             Pt prev = new(-1, -1), curr = new(0, 0);
             for (var y = 0; y <= block.Count - 1; y++)
@@ -46,12 +51,11 @@ public class Day13 : AocDaySolver
                 {
                     curr = new(x,y);
                     ChangeBlockElement(block, curr, prev);
-                    var (rowscores, colscores) = GetBlockScores(block);
-                    var mi = GetMirrorInfo(rowscores.AsReadOnly(), colscores.AsReadOnly(), orgMI);
-                    if (mi.IsValid)
+                    var score = GetScore(block, orgMI);
+                    if (score > 0)
                     {
                         found = true;
-                        blockscore = mi.Score;
+                        p2 += score;
                         break;
                     }
                     prev = curr;
@@ -59,123 +63,45 @@ public class Day13 : AocDaySolver
                 if (found)
                     break;
             }
-            p2 += blockscore;
             bi++;
         }
         this.ShowDayResult(2, p2);
     }
 
-    private List<List<char[]>> ProcessInput(IReadOnlyCollection<string> input)
+    private int GetScore(List<char[]> block, int skipScore = -1)
     {
-        var result = new List<List<char[]>>();
-        var block = new List<char[]>();
-        foreach (var line in input)
-        {
-            if (string.IsNullOrWhiteSpace(line))
-            {
-                if (block.Count > 0)
-                {
-                    result.Add(block);
-                    block = [];
-                }
-                continue;
-            }
-            block.Add(line.ToCharArray());
-        }
-        if (block.Count > 0)
-        {
-            result.Add(block);
-        }
+        Func<int, IEnumerable<char>> rfunc = (i) => block[i];
+        Func<int, IEnumerable<char>> cfunc = (i) => block.Select(c => c[i]);
 
+        var result = GetScore(block.Count - 1, rfunc, 100, skipScore);
+        if (result <= 0)
+        {
+            result = GetScore(block[0].Length - 1, cfunc, 1, skipScore);
+        }
         return result;
     }
 
-    /// <summary>
-    /// Create a 'score' for each row and column of the block. A simple bit shifted
-    /// integer where '#' == 1 and '.' == 0.
-    /// <para />This makes it easy to compare rows and cols just by their score rather
-    /// than string comparison.
-    /// </summary>
-    private (int[], int[]) GetBlockScores(IReadOnlyList<char[]> block)
+    private int GetScore(int max, Func<int, IEnumerable<char>> fn, int mult, int skipScore = -1)
     {
-        var h = block.Count;
-        var w = block[0].Length;
-        var rowscores = new int[h];
-        var colscores = new int[w];
-        for (var y = 0; y <= h-1; y++)
+        for (var i = 1; i <= max; i++)
         {
-            for (var x = 0; x <= w-1; x++)
-            {
-                var c = block[y][x];
-                rowscores[y] *= 2;
-                rowscores[y] += c == '#' ? 1 : 0;
-
-                colscores[x] *= 2;
-                colscores[x] += c == '#' ? 1 : 0;
-            }
-        }
-        return (rowscores, colscores);
-    }
-
-    /// <summary>
-    /// Compare adjacent pairs of rows and pairs of columns to find a match and
-    /// then check that all surrounding rows or cols also pair off.
-    /// </summary>
-    private MirrorInfo GetMirrorInfo(ReadOnlyCollection<int> rowScores, ReadOnlyCollection<int> colScores, MirrorInfo? skip = null)
-    {
-        // Look at the rows first
-        var result = skip is not null && skip.IsRow
-            ? GetMirrorLine(rowScores, skip.Index)  // P2
-            : GetMirrorLine(rowScores);                  // P1
-
-        if (result >= 0)
-            return new MirrorInfo(result, MirrorLineOrientation.Row);
-
-        // ...otherwise, try the columns
-        result = skip is not null && !skip.IsRow
-            ? GetMirrorLine(colScores, skip.Index)  // P1
-            : GetMirrorLine(colScores);                  // P2
-
-        if (result >= 0)
-            return new MirrorInfo(result, MirrorLineOrientation.Column);
-
-        // Else, return an invalid MirrorInfo object
-        return new MirrorInfo(-1, MirrorLineOrientation.Unknown);
-    }
-
-    private int GetMirrorLine(ReadOnlyCollection<int> scores, int skipIndex = -1)
-    {
-        int smax = scores.Count - 1;
-        var lastseen = -1;
-        for (var i = 0; i <= smax; i++)
-        {
-            var sc = scores[i];
-            if (sc == lastseen && i != skipIndex)
+            if (fn(i).SequenceEqual(fn(i - 1)) && (i * mult) != skipScore)
             {
                 // We now need to check that each row or column either side is also mirrored
                 var allmatch = true;
-                // Add the indexes of the initial matching pair together to help work out lower bounds
-                var mm = i + (i-1);
-                for (var hi = i+1; hi <= smax; hi++)
+                for (var (hi,lo) = (i+1,i-2); hi <= max && lo >= 0; hi++, lo--)
                 {
-                    var lo = mm - hi;
-                    if (lo < 0) // matched all we can
-                        break;
-
-                    if (scores[hi] != scores[lo])
+                    if (!fn(hi).SequenceEqual(fn(lo)))
                     {
                         allmatch = false;
                         break;
                     }
                 }
                 if (allmatch)
-                    return i;
-
+                    return i * mult;
             }
-            lastseen = sc;
         }
-        // We haven't found a mirror
-        return -1;
+        return 0;
     }
 
     private void ChangeBlockElement(List<char[]> block, Pt toChange, Pt prev)
@@ -191,16 +117,4 @@ public class Day13 : AocDaySolver
         block[cy][cx] = block[cy][cx] == '.' ? '#' : '.';
     }
 
-    private enum MirrorLineOrientation { Unknown, Row, Column, }
-    private record MirrorInfo(int Index, MirrorLineOrientation Orientation)
-    {
-        public bool IsRow =>
-            Orientation == MirrorLineOrientation.Row;
-        public bool IsValid =>
-            Orientation != MirrorLineOrientation.Unknown && Index >= 0;
-        public int Score =>
-            Orientation == MirrorLineOrientation.Row
-                ? Index * 100
-                : Index;
-    }
 }
