@@ -16,13 +16,13 @@ public static class AocUtils
             .ToList();
     }
 
-    public static async Task<string> GetDayText(int day)
+    public static async Task<string> GetDayText(int day, string suffix = "")
     {
-        var fn = FindInputFile(day);
+        var fn = FindInputFile(day, suffix);
         if (string.IsNullOrEmpty(fn))
             throw new FileNotFoundException($"Input file for day {day} not found");
 
-        return await File.ReadAllTextAsync(fn);
+        return (await File.ReadAllTextAsync(fn)).Trim([' ', '\r', '\n', '\t']);
     }
 
     public static string FindInputFile(int day, string suffix = "")
