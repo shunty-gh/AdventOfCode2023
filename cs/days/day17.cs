@@ -32,7 +32,8 @@ public class Day17 : AocDaySolver
                 continue;
             visited[vkey] = curr.Cost;
 
-            var visitable = GetVisitableNeighbours(map, curr);
+            //var visitable = GetVisitableNeighbours(map, curr, 0, 3);
+            var visitable = GetVisitableNeighbours(map, curr, 4, 10);
             foreach (var n in visitable)
             {
                 if (n.Cost >= bestCost)
@@ -66,7 +67,7 @@ public class Day17 : AocDaySolver
 
     private readonly Pt[] DirectionDelta = [new(0,-1), new(1,0), new(0,1), new(-1,0)];
 
-    private List<QueueItem> GetVisitableNeighbours(List<List<int>> map, QueueItem current)
+    private List<QueueItem> GetVisitableNeighbours(List<List<int>> map, QueueItem current, int minDC = 0, int maxDC = 3)
     {
         var result = new List<QueueItem>();
         Pt[] adjacent = [
@@ -97,9 +98,11 @@ public class Day17 : AocDaySolver
         foreach (var choice in choices)
         {
             var adj = adjacent[choice];
-            if (choice == current.Dir && current.DirCount == 3)
+            if (choice == current.Dir && current.DirCount >= maxDC)
                 continue;
             if (adj.X < 0 || adj.Y < 0 || adj.X >= map[0].Count || adj.Y >= map.Count)
+                continue;
+            if (choice != current.Dir && current.DirCount < minDC)
                 continue;
             var dirc = choice == current.Dir ? current.DirCount + 1 : 1;
             var stepcost = map[adj.Y][adj.X];
