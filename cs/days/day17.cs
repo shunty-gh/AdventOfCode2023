@@ -1,12 +1,26 @@
 namespace Shunty.AoC;
 
-// https://adventofcode.com/2023/day/17
+// https://adventofcode.com/2023/day/17 - Clumsy Crucible
 
 public class Day17 : AocDaySolver
 {
+    /// This is SO slow for part 1 - about 8 minutes on my machine - but
+    /// part 2 runs in only about 5s. Huh? I've never managed that before.
+    /// Therefore it could do with a tidy up and perhaps a bit of a rewrite.
+    /// But that's unlikely to happen...
+    /// It compiles, it gives the right result, enough already.
+
     public int DayNumber => 17;
 
     public async Task Solve()
+    {
+        var p1 = await SolvePart(0, 3);
+        this.ShowDayResult(1, p1);
+        var p2 = await SolvePart(4, 10);
+        this.ShowDayResult(2, p2);
+    }
+
+    public async Task<int> SolvePart(int MinimumStraight, int MaximumStraight)
     {
         //var input = await AocUtils.GetDayLines(DayNumber, "test");
         var input = await AocUtils.GetDayLines(DayNumber);
@@ -32,8 +46,7 @@ public class Day17 : AocDaySolver
                 continue;
             visited[vkey] = curr.Cost;
 
-            //var visitable = GetVisitableNeighbours(map, curr, 0, 3);
-            var visitable = GetVisitableNeighbours(map, curr, 4, 10);
+            var visitable = GetVisitableNeighbours(map, curr, MinimumStraight, MaximumStraight);
             foreach (var n in visitable)
             {
                 if (n.Cost >= bestCost)
@@ -61,8 +74,7 @@ public class Day17 : AocDaySolver
                 }
             }
         }
-        this.ShowDayResult(1, bestCost);
-        this.ShowDayResult(2, 0);
+        return bestCost;
     }
 
     private readonly Pt[] DirectionDelta = [new(0,-1), new(1,0), new(0,1), new(-1,0)];
