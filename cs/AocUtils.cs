@@ -80,9 +80,9 @@ public static class AocExtensions
 
     //[UnconditionalSuppressMessage("TrimAnalysis", "IL3002", Justification = AllowSpectreWarnings)]
     //[UnconditionalSuppressMessage("TrimAnalysis", "IL2104", Justification = AllowSpectreWarnings)]
-    public static void ShowDayResult<T>(this AocDaySolver _, int part, T solution)
+    public static void ShowDayResult<T>(this AocDaySolver _, int part, T solution, string suffix = "")
     {
-        AnsiConsole.MarkupLine($"  [bold]Part {part}:[/] {solution?.ToString() ?? "<Unknown>"}");
+        AnsiConsole.MarkupLine($"  [bold]Part {part}:[/] {solution?.ToString() ?? "<Unknown>"} {(string.IsNullOrWhiteSpace(suffix) ? "" : suffix)}");
     }
 
     public static void ShowDayResults<T>(this AocDaySolver _, T solution1, T solution2)
