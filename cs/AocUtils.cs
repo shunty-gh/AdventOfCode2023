@@ -130,9 +130,19 @@ public static class NumericExtensions
     public static Int64 Sum64(this IEnumerable<Int64> source)
     {
         Int64 result = 0;
-        foreach (int n in source)
+        foreach (long n in source)
         {
             result += n;
+        }
+        return result;
+    }
+
+    public static Int64 Sum64<T>(this IEnumerable<T> source, Func<T, Int64> func)
+    {
+        Int64 result = 0;
+        foreach (T n in source)
+        {
+            result += func(n);
         }
         return result;
     }
