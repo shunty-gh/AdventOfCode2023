@@ -147,6 +147,36 @@ public static class NumericExtensions
         return result;
     }
 
+    public static Int64 Product64(this IEnumerable<int> source)
+    {
+        Int64 result = 1;
+        foreach (int n in source)
+        {
+            result *= (Int64)n;
+        }
+        return result;
+    }
+
+    public static Int64 Product64(this IEnumerable<Int64> source)
+    {
+        Int64 result = 1;
+        foreach (long n in source)
+        {
+            result *= n;
+        }
+        return result;
+    }
+
+    public static Int64 Product64<T>(this IEnumerable<T> source, Func<T, Int64> func)
+    {
+        Int64 result = 1;
+        foreach (T n in source)
+        {
+            result *= func(n);
+        }
+        return result;
+    }
+
     public static IReadOnlyCollection<Factor> Factors(this Int64 value)
     {
         var factors = new Dictionary<Int64, Int64>();
