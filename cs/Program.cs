@@ -48,7 +48,7 @@ static IReadOnlyCollection<AocDaySolver> LoadSolutionTypes()
         new Day06(), new Day07(), new Day08(), new Day09(), new Day10(),
         new Day11(), new Day12(), new Day13(), new Day14(), new Day15(),
         new Day16(), new Day17(), new Day18(), new Day19(), new Day20(),
-        //new Day21(), new Day22(), new Day23(), new Day24(), new Day25(),
+        new Day21(), new Day22(), //new Day23(), new Day24(), new Day25(),
     };
 }
 
@@ -81,6 +81,13 @@ static IReadOnlyCollection<int> GetDaysRequested(string[] args)
 /// </summary>
 static async Task RunSolutions(IEnumerable<AocDaySolver> daysToRun, Stopwatch timer)
 {
+    // Run it and time it, no spinners/status etc
+    // foreach (var daySolution in daysToRun)
+    // {
+    //     var start = timer.ElapsedMilliseconds;
+    //     await daySolution.Solve();
+    // }
+    // return;
     await AnsiConsole.Status()
         .StartAsync("Running...", async ctx =>
         {

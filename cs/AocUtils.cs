@@ -5,7 +5,7 @@ namespace Shunty.AoC;
 
 public static class AocUtils
 {
-    public static async Task<IList<string>> GetDayLines(int day, string suffix = "")
+    public static async Task<List<string>> GetDayLines(int day, string suffix = "")
     {
         var fn = FindInputFile(day, suffix);
         if (string.IsNullOrEmpty(fn))
